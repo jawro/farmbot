@@ -42,6 +42,7 @@ void setup() {
   dht.temperature().getSensor(&sensor);
 
   delayMS = sensor.min_delay / 1000;
+  Serial.print(delayMS);
 
   WiFi.begin(params.ssid,params.password);
 
@@ -68,6 +69,7 @@ void loop() {
     Serial.print(F("Temperature: "));
     Serial.print(temperature);
     Serial.println(F("°C"));
+    for(int t=0;t<100;t++)
     pushData(1,temperature,params);
   }
   

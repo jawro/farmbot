@@ -5,8 +5,8 @@
 
 struct Parameters
 {
-const char* ssid = "internety2";
-const char* password = "forestone";
+const char* ssid = "internety";
+const char* password = "fffiiittt";
 
 const char* host = "api.thingspeak.com";
 const char* writeAPIKey = "8ABUGD4X994W7E06";
