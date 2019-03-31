@@ -1,6 +1,7 @@
 #include "connections.h"
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <PubSubClient.h>
 
 Parameters::Parameters(const char * ssid, const char * password, const char * host, const char * writeAPIKey)
 {
@@ -37,9 +38,28 @@ url+="\r\n";
 client.print(String("GET ") + url + " HTTP/1.1\r\n" +
 "Host: " + params.host + "\r\n" +
 "Connection: close\r\n\r\n");
-
+}
+ return 0;
 }
 
- return 0;
+short pushDatamqtt(short field, float data, const Parameters & param, PubSubClient * client)
+{
+    String payload="field";
+    payload+=String(field);
+    payload+="=";
+    payload+=String(data);
+    payload+="&status=MQTTPUBLISH";
 
-} 
+    if (client->connected()){
+    Serial.print("Sending payload: ");
+    Serial.println(payload);
+
+    if (client->publish(param.topic, (char*) payload.c_str())) {
+        Serial.println("Publish ok");
+    }
+    else {
+      Serial.println("Publish failed");
+    }
+  }
+  return 0;
+}
