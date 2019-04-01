@@ -4,8 +4,8 @@
 
 struct Parameters
 {
-const char* ssid = "internety";
-const char* password = "fffiiittt";
+const char* ssid = "internety2";
+const char* password = "forestone";
 
 const char* mqtt_server = "mqtt.thingspeak.com";
 const char* host = "api.thingspeak.com";
@@ -23,5 +23,9 @@ const unsigned long ChannelID= 740255;
 int pushData(short field, float data, const Parameters & param);
 
 short pushDatamqtt(short field, float data, const Parameters & param,PubSubClient * client);
+
+void connectWiFi(Parameters params);
+
+void connectMQTTserver(Parameters params,PubSubClient mq_client);
 
 #endif

@@ -47,51 +47,22 @@ void setup() {
   delayMS = sensor.min_delay / 1000;
   Serial.print(delayMS);
 
-
-  Serial.print("Attempting to connect to SSID: ");
-  WiFi.begin(params.ssid,params.password);
-  while(WiFi.status() != WL_CONNECTED)
-  {
-    Serial.print(".");
-    delay(500);     
-  } 
-  Serial.println("\nConnected.");
-
-  String clientName="ESP-Thingspeak";
-  Serial.print("Connecting to ");
-  Serial.print(params.mqtt_server);
-  Serial.print(" as ");
-  Serial.println(clientName);
-  
- 
-
-  if (mq_client.connect((char*) clientName.c_str())) {
-    Serial.println("Connected to MQTT broker");
-    Serial.print("Topic is: ");
-    Serial.println(params.topic);
-    
-    if (mq_client.publish(params.topic, "hello from ESP8266")) {
-      Serial.println("Publish ok");
-    }
-    else {
-      Serial.println("Publish failed");
-    }
-  }
-  else {
-    Serial.println("MQTT connect failed");
-    Serial.println("Will reset and try again...");
-    abort();
-  }
-
+  connectWiFi(params);
+  connectMQTTserver(params,mq_client);
 }
   
-
-
 int return_code=0;
+float data[2]; //temperature, humidity
+short i=0;
+
 
 void loop() {
 
-  float temperature;
+  if(WiFi.status()!=WL_CONNECTED)
+    connectWiFi(params);
+
+  Serial.print("State: ");
+  Serial.println(mq_client.state());
   
   delay(15500);
   // Get temperature event and print its value.
@@ -101,11 +72,11 @@ void loop() {
     Serial.println(F("Error reading temperature!"));
   }
   else {
-    temperature = event.temperature;
+    data[0] = event.temperature;
     Serial.print(F("Temperature: "));
-    Serial.print(temperature);
+    Serial.print(data[0]);
     Serial.println(F("°C"));
-    pushDatamqtt(1,temperature,params,&mq_client);
+
 
    /*
     return_code = ThingSpeak.writeField(params.ChannelID, 1, temperature, params.writeAPIKey);
@@ -122,7 +93,7 @@ void loop() {
   //  pushData(1,temperature,params); 
   }
   
-  /*
+  
   // Get humidity event and print its value.
   dht.humidity().getEvent(&event);
   if (isnan(event.relative_humidity)) {
@@ -130,9 +101,13 @@ void loop() {
   }
   else {
     Serial.print(F("Humidity: "));
-    Serial.print(event.relative_humidity);
+    data[1]=event.relative_humidity;
+    Serial.print(data[1]);
     Serial.println(F("%"));
   }
-*/
 
+  i++;
+  if(i==2) i=0;
+
+  pushDatamqtt(i+1,data[i],params,&mq_client);
 }

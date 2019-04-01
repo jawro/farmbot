@@ -63,3 +63,42 @@ short pushDatamqtt(short field, float data, const Parameters & param, PubSubClie
   }
   return 0;
 }
+
+void connectWiFi(Parameters params)
+{
+  Serial.print("Attempting to connect to SSID: ");
+  WiFi.begin(params.ssid,params.password);
+  while(WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(500);     
+  } 
+  Serial.println("\nConnected.");
+}
+
+void connectMQTTserver(Parameters params,PubSubClient mq_client)
+{
+  String clientName="ESP-Thingspeak";
+  Serial.print("Connecting to ");
+  Serial.print(params.mqtt_server);
+  Serial.print(" as ");
+  Serial.println(clientName);
+  
+  if (mq_client.connect((char*) clientName.c_str())) {
+    Serial.println("Connected to MQTT broker");
+    Serial.print("Topic is: ");
+    Serial.println(params.topic);
+    
+    if (mq_client.publish(params.topic, "hello from ESP8266")) {
+      Serial.println("Publish ok");
+    }
+    else {
+      Serial.println("Publish failed");
+    }
+  }
+  else {
+    Serial.println("MQTT connect failed");
+    Serial.println("Will reset and try again...");
+    abort();
+  }
+}
